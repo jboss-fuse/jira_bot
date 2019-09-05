@@ -1,34 +1,23 @@
 package io.syndesis.tools;
 
 
-import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.*;
-import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
+import com.atlassian.jira.rest.client.api.domain.Project;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
-
-import com.atlassian.util.concurrent.Promise;
 import com.sun.net.httpserver.HttpServer;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.kohsuke.github.*;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.BASE64Encoder;
 
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.List;
+import java.net.InetSocketAddress;
+import java.net.URI;
 
 public class JiraBot {
 
-
-    // TODO
-    public static final String JIRA_PROJECT = "ENTESB";
-
     static Logger LOG = LoggerFactory.getLogger(JiraBot.class);
+
+    public static final String JIRA_PROJECT = "ENTESB";
 
     public static void main(String[] args) throws Exception {
 
@@ -57,7 +46,7 @@ public class JiraBot {
         LOG.info("Connected to {} ... ", repo.getName());
 
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-        server.createContext("/github", new WebHookHandler());
+        server.createContext("/", new WebHookHandler(jira,github));
         server.setExecutor(null); // creates a default executor
         server.start();
 
