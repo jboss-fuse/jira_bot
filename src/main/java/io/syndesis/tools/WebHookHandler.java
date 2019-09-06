@@ -5,7 +5,8 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.syndesis.tools.cmd.PullRequestOpenedCmd;
+import io.syndesis.tools.cmd.PullRequestClosed;
+import io.syndesis.tools.cmd.PullRequestOpened;
 import org.apache.http.Consts;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
@@ -23,8 +24,9 @@ public class WebHookHandler implements HttpHandler {
     private final GitHub github;
 
     Map<EventType, Command> commands = new EnumMap<EventType, Command>(EventType.class) {{
-        put(EventType.PULL_REQUEST_OPENED, new PullRequestOpenedCmd());
-        put(EventType.PULL_REQUEST_REOPENED, new PullRequestOpenedCmd());
+        put(EventType.PULL_REQUEST_OPENED, new PullRequestOpened());
+        put(EventType.PULL_REQUEST_REOPENED, new PullRequestOpened());
+        put(EventType.PULL_REQUEST_CLOSED, new PullRequestClosed());
     }};
 
     public WebHookHandler() {
