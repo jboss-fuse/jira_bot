@@ -100,7 +100,7 @@ public class PullRequestClosed implements Command {
                 try {
                     GHPullRequest pullRequest = github.getRepository(repo).getPullRequest(pullRequestId);
                     pullRequest
-                            .comment("@"+pullRequest.getUser().getLogin()+" Auto transition failed. Please update the status of this Jira ticket manually: "
+                            .comment("@"+pullRequest.getUser().getLogin()+" The bot could not transition the ticket automatically, please update this Jira ticket manually: "
                                     + "https://issues.jboss.org/browse/" + issue.getKey());
 
                 } catch (IOException e) {

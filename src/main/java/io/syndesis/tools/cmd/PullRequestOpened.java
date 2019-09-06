@@ -13,6 +13,7 @@ import io.syndesis.tools.EventType;
 import io.syndesis.tools.IssueKey;
 import io.syndesis.tools.Util;
 import org.json.JSONObject;
+import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 
@@ -89,8 +90,9 @@ public class PullRequestOpened implements Command {
                         "In Review");
 
                 try {
-                    github.getRepository(repo).getPullRequest(pullRequestId)
-                            .comment("Auto transition failed. Please update the status of this Jira ticket manually: "
+                    GHPullRequest pullRequest = github.getRepository(repo).getPullRequest(pullRequestId);
+                    pullRequest
+                            .comment("@"+pullRequest.getUser().getLogin()+" The bot could not transition the ticket automatically, please update this Jira ticket manually: "
                                     + "https://issues.jboss.org/browse/" + issue.getKey());
 
                 } catch (IOException e) {
