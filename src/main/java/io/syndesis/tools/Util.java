@@ -13,8 +13,8 @@ import java.net.URL;
 
 public class Util {
 
-    final static String USER = System.getProperty("JIRA_USER");
-    final static String PASS = System.getProperty("JIRA_PASS");
+    final static String USER = System.getenv("JIRA_USER");
+    final static String PASS = System.getenv("JIRA_PASS");
 
     public static HttpURLConnection createAuthenticatedUrlConnection(URL url, String requestMethod)
             throws IOException {

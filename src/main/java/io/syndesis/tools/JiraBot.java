@@ -18,8 +18,8 @@ public class JiraBot {
 
     public static void main(String[] args) throws Exception {
 
-        final String user = System.getProperty("JIRA_USER");
-        final String pass = System.getProperty("JIRA_PASS");
+        final String user = System.getenv("JIRA_USER");
+        final String pass = System.getenv("JIRA_PASS");
 
         if(null==user || null==pass) {
             LOG.error("Missing username and password properties, exiting.");
