@@ -6,5 +6,5 @@ import org.slf4j.Logger;
 
 public interface Command {
 
-    void execute(EventType eventType, String payload, GitHub github, JiraRestClient jira, Logger logger);
+    void execute(String repo, EventType eventType, String payload, GitHub github, JiraRestClient jira, Logger logger);
 }

@@ -61,19 +61,20 @@ public class WebHookHandler implements HttpHandler {
             LOG.info("Received EventType: {} from repo {}", eventType, repo);
             Command command = commands.getOrDefault(eventType, new Command() {
                 @Override
-                public void execute(EventType eventType, String payload, GitHub github, JiraRestClient jira, Logger logger) {
+                public void execute(String repo, EventType eventType, String payload, GitHub github, JiraRestClient jira, Logger logger) {
                     LOG.error("Unknown event type: {}. No handler could be found.", eventType);
                 }
             });
 
             long start = System.currentTimeMillis();
-            command.execute(eventType, body.toString(), github, jira, LOG);
+            command.execute(repo, eventType, body.toString(), github, jira, LOG);
             long end = System.currentTimeMillis();
 
             LOG.info("Processing time: {} ms", end-start);
 
         } catch (RuntimeException e) {
             status = 500;
+            e.printStackTrace();
             LOG.error("Failed to process {}: {}", eventType, e.getMessage());
         } finally {
             jira.close();
