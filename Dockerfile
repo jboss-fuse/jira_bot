@@ -10,7 +10,7 @@ RUN mvn clean install
 
 FROM openjdk:8-jre-alpine as main
 WORKDIR /app
-COPY --from=build /app/target/jira-bot.jar /app
+COPY --from=build /app/target/jira-bot-jar-with-dependencies.jar /app
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c"]
-CMD ["java -jar jira-bot.jar"]
+CMD ["java -jar jira-bot-jar-with-dependencies.jar"]
