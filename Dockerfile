@@ -10,6 +10,9 @@ RUN mvn clean install
 
 FROM openjdk:8-jre-alpine as main
 WORKDIR /app
+RUN addgroup -S appuser && adduser -S -G appuser appuser
+USER appuser
+
 COPY --from=build /app/target/jira-bot-jar-with-dependencies.jar /app
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c"]
