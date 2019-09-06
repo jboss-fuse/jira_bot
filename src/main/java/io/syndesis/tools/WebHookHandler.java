@@ -52,8 +52,26 @@ public class WebHookHandler implements HttpHandler {
                 .parse(body.toString()
                 );
 
-        String action = JsonPath.read(document, "$.action");
         String typeHeader = exchange.getRequestHeaders().getFirst("X-GitHub-Event");
+
+        // check supported event types
+        boolean isSupported = false;
+        for(EventType type : EventType.values()) {
+            if(type.name().toLowerCase().startsWith(typeHeader)) {
+                isSupported = true;
+                break;
+            }
+        }
+        if(!isSupported) {
+            String response = "Unsupported event type";
+            exchange.sendResponseHeaders(501, response.length());
+            OutputStream os = exchange.getResponseBody();
+            os.write(response.getBytes());
+            os.close();
+            return;
+        }
+
+        String action = JsonPath.read(document, "$.action");
         EventType eventType = EventType.valueOf((typeHeader + "_" + action).toUpperCase());
         String repo = JsonPath.read(document, "$.repository.full_name");
 
