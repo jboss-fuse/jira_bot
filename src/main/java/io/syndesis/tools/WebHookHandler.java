@@ -5,7 +5,7 @@ import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import io.syndesis.tools.cmd.PROpenCmd;
+import io.syndesis.tools.cmd.PullRequestOpenedCmd;
 import org.apache.http.Consts;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
@@ -20,17 +20,15 @@ import java.util.Map;
 public class WebHookHandler implements HttpHandler {
 
     static Logger LOG = LoggerFactory.getLogger(WebHookHandler.class);
-
-    private final JiraRestClient jira;
     private final GitHub github;
 
     Map<EventType, Command> commands = new EnumMap<EventType, Command>(EventType.class) {{
-        put(EventType.PULL_REQUEST_OPENED, new PROpenCmd());
+        put(EventType.PULL_REQUEST_OPENED, new PullRequestOpenedCmd());
+        put(EventType.PULL_REQUEST_REOPENED, new PullRequestOpenedCmd());
     }};
 
-    public WebHookHandler(JiraRestClient jira, GitHub github) {
-        this.jira = jira;
-        this.github = github;
+    public WebHookHandler() {
+        this.github = Util.createGithubClient();
     }
 
     @Override
@@ -58,6 +56,7 @@ public class WebHookHandler implements HttpHandler {
         String repo = JsonPath.read(document, "$.repository.full_name");
 
         int status = 200;
+        JiraRestClient jira = Util.createJiraClient();
         try {
             LOG.info("Received EventType: {} from repo {}", eventType, repo);
             Command command = commands.getOrDefault(eventType, new Command() {
@@ -76,6 +75,9 @@ public class WebHookHandler implements HttpHandler {
         } catch (RuntimeException e) {
             status = 500;
             LOG.error("Failed to process {}: {}", eventType, e.getMessage());
+        } finally {
+            jira.close();
+
         }
 
         // response
