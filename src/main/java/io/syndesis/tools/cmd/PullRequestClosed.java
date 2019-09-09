@@ -3,25 +3,16 @@ package io.syndesis.tools.cmd;
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.Transition;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import io.syndesis.tools.Command;
 import io.syndesis.tools.EventType;
 import io.syndesis.tools.IssueKey;
-import io.syndesis.tools.Util;
-import org.json.JSONObject;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 public class PullRequestClosed implements Command {
@@ -31,12 +22,8 @@ public class PullRequestClosed implements Command {
     public static final String TO_PRODUCTIZATION = "To Productization";
 
     @Override
-    public void execute(String repo, EventType eventType, String payload, GitHub github, JiraRestClient jira, Logger logger) {
+    public void execute(String repo, EventType eventType, Object document, GitHub github, JiraRestClient jira, Logger logger) {
         logger.info("Processing {}", eventType);
-
-        Object document = Configuration.defaultConfiguration()
-                .jsonProvider()
-                .parse(payload);
 
         // try title first
         String title = JsonPath.read(document, "$.pull_request.title");

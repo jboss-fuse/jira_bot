@@ -6,9 +6,7 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.Transition;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import io.syndesis.tools.Command;
 import io.syndesis.tools.EventType;
 import io.syndesis.tools.IssueKey;
 import io.syndesis.tools.Util;
@@ -30,13 +28,9 @@ public class PullRequestOpened implements Command {
     public static final String TO_REVIEW = "To Review";
 
     @Override
-    public void execute(String repo, EventType eventType, String payload, GitHub github, JiraRestClient jira, Logger logger) {
+    public void execute(String repo, EventType eventType, Object document, GitHub github, JiraRestClient jira, Logger logger) {
         logger.info("Processing {}", eventType);
-
-        Object document = Configuration.defaultConfiguration()
-                .jsonProvider()
-                .parse(payload);
-
+        
         // try title first
         String title = JsonPath.read(document, "$.pull_request.title");
         Integer pullRequestId = JsonPath.read(document, "$.pull_request.number");
