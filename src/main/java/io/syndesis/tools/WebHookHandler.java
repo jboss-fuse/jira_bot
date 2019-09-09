@@ -68,7 +68,7 @@ public class WebHookHandler implements HttpHandler {
 
             LOG.info("Processing time: {} ms", end-start);
 
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             LOG.error("Failed to process {}: {}", eventType, e.getMessage());
         }
 

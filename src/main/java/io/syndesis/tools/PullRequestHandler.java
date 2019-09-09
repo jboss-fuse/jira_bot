@@ -20,6 +20,7 @@ public class PullRequestHandler implements EventHandler {
         put(EventType.PULL_REQUEST_OPENED, new PullRequestOpened());
         put(EventType.PULL_REQUEST_REOPENED, new PullRequestOpened());
         put(EventType.PULL_REQUEST_CLOSED, new PullRequestClosed());
+        put(EventType.PULL_REQUEST_EDITED, new PullRequestOpened());
     }};
 
     static Logger LOG = LoggerFactory.getLogger(WebHookHandler.class);
@@ -61,7 +62,7 @@ public class PullRequestHandler implements EventHandler {
 
             command.execute(repo, eventType, document, github, jira, LOG);
 
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             response.setStatus(500);
             response.setMessage("Failed to process "+ eventType);
             LOG.error("Failed to process {}: {}", eventType, e.getMessage());

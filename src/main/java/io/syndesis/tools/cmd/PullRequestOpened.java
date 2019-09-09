@@ -10,6 +10,8 @@ import com.jayway.jsonpath.JsonPath;
 import io.syndesis.tools.EventType;
 import io.syndesis.tools.IssueKey;
 import io.syndesis.tools.Util;
+
+import org.codehaus.jettison.json.JSONArray;
 import org.json.JSONObject;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GitHub;
@@ -26,6 +28,7 @@ public class PullRequestOpened implements Command {
 
     public static final String IN_DEVELOPMENT = "In Development";
     public static final String TO_REVIEW = "To Review";
+    public static final String IN_REVIEW = "In Review";
 
     @Override
     public void execute(String repo, EventType eventType, Object document, GitHub github, JiraRestClient jira, Logger logger) {
@@ -77,6 +80,8 @@ public class PullRequestOpened implements Command {
                         }
                     }
                 }
+            } else if (issue.getStatus().getName().equals(IN_REVIEW)) {
+                logger.info("Ticket {} already in correct state {}", issue.getKey(), IN_REVIEW);
             } else {
                 logger.warn("Cannot auto transition {} from {} to {}"
                         , issue.getKey()
@@ -98,8 +103,12 @@ public class PullRequestOpened implements Command {
             // at least, link the PR
             IssueField pullRequestField = issue.getFieldByName("Git Pull Request");
 
+            // append PR info
+            JSONArray jsonArray = (JSONArray) pullRequestField.getValue();
+            jsonArray.put(pullRequestHref.toString());
+
             JSONObject fieldJson = new JSONObject();
-            fieldJson.put(pullRequestField.getId(), pullRequestHref.toString());
+            fieldJson.put(pullRequestField.getId(), jsonArray);
             JSONObject updateJson = new JSONObject();
             updateJson.put("fields", fieldJson);
 
@@ -122,7 +131,7 @@ public class PullRequestOpened implements Command {
                 in.close();
 
             } catch (Exception e) {
-                logger.error("Failed to update issue {}: {}", issue.getKey(), e.getMessage());
+                throw new RuntimeException("Failed to update "+issue.getKey()+": "+ e.getMessage());
             }
         }
 
