@@ -12,6 +12,7 @@ import io.syndesis.tools.IssueKey;
 import io.syndesis.tools.Util;
 
 import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.json.JSONObject;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GitHub;
@@ -104,11 +105,32 @@ public class PullRequestOpened implements Command {
             IssueField pullRequestField = issue.getFieldByName("Git Pull Request");
 
             // append PR info
-            JSONArray jsonArray = (JSONArray) pullRequestField.getValue();
-            jsonArray.put(pullRequestHref.toString());
+            StringBuilder sb = new StringBuilder();
+
+            if (pullRequestField.getValue() != null) {
+                JSONArray jsonArray = (JSONArray) pullRequestField.getValue();
+                jsonArray.put(pullRequestHref.toString());
+
+                if (jsonArray.length() > 0) {
+
+                    try {
+                        for (int idx = 0; idx < jsonArray.length(); idx++) {
+                            if (idx > 0)
+                                sb.append(",");
+                            sb.append(jsonArray.get(idx).toString());
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e.getMessage());
+                    }
+                } else {
+                    sb.append(pullRequestHref.toString());
+                }
+            } else {
+                sb.append(pullRequestHref.toString());
+            }
 
             JSONObject fieldJson = new JSONObject();
-            fieldJson.put(pullRequestField.getId(), jsonArray);
+            fieldJson.put(pullRequestField.getId(), sb.toString());
             JSONObject updateJson = new JSONObject();
             updateJson.put("fields", fieldJson);
 
