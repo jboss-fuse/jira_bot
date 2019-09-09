@@ -30,7 +30,7 @@ public class PullRequestOpened implements Command {
     @Override
     public void execute(String repo, EventType eventType, Object document, GitHub github, JiraRestClient jira, Logger logger) {
         logger.info("Processing {}", eventType);
-        
+
         // try title first
         String title = JsonPath.read(document, "$.pull_request.title");
         Integer pullRequestId = JsonPath.read(document, "$.pull_request.number");

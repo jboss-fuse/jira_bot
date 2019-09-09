@@ -38,7 +38,13 @@ public class PullRequestHandler implements EventHandler {
                 .parse(request.getPayload());
 
         String action = JsonPath.read(document, "$.action");
-        EventType eventType = EventType.valueOf((event + "_" + action).toUpperCase());
+        EventType eventType = EventType.UNKNOWN;
+        try {
+            eventType = EventType.valueOf((event + "_" + action).toUpperCase());
+        } catch (IllegalArgumentException e) {
+            //
+        }
+
         String repo = JsonPath.read(document, "$.repository.full_name");
 
         JiraRestClient jira = Util.createJiraClient();
@@ -47,7 +53,7 @@ public class PullRequestHandler implements EventHandler {
             Command command = commands.getOrDefault(eventType, new Command() {
                 @Override
                 public void execute(String repo, EventType eventType, Object jsonDocument, GitHub github, JiraRestClient jira, Logger logger) {
-                    LOG.error("Unknown event type: {}. No command could be found.", eventType);
+                    LOG.error("No command could be found be found for event `{}` and action `{}`", event, action);
                     response.setStatus(200);
                     response.setMessage("Unknown event type: "+ eventType);
                 }
