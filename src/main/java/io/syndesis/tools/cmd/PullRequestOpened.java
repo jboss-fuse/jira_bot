@@ -2,6 +2,7 @@ package io.syndesis.tools.cmd;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.Transition;
@@ -14,6 +15,7 @@ import io.syndesis.tools.Util;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.json.JSONObject;
+import org.kohsuke.github.GHIssueComment;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
@@ -89,11 +91,36 @@ public class PullRequestOpened implements Command {
                         , issue.getStatus().getName(),
                         "In Review");
 
+                // check if a comment about this issue already exists
                 try {
+
+                    boolean remarkExists = false;
                     GHPullRequest pullRequest = github.getRepository(repo).getPullRequest(pullRequestId);
-                    pullRequest
-                            .comment("@"+pullRequest.getUser().getLogin()+" The bot could not transition the ticket automatically, please update this Jira ticket manually: "
-                                    + "https://issues.jboss.org/browse/" + issue.getKey());
+                    String github_login = System.getenv("github_login");
+
+                    search: {
+                        for(GHIssueComment comment : pullRequest.getComments()) {
+
+                            if(comment.getUser().getLogin().equals(github_login)) {
+
+                                List<IssueKey> commentKeys = IssueKey.parseIssueKeys(comment.getBody());
+                                for(IssueKey commentKey : commentKeys) {
+                                    if(commentKey.getFullyQualifiedIssueKey().equals(issue.getKey())) {
+                                        logger.info("I have already bragged about {} on {}", issue.getKey(), pullRequest.getNumber());
+                                        remarkExists = true;
+                                        break search;
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+
+                    if(!remarkExists) {
+                        pullRequest
+                                .comment("@"+pullRequest.getUser().getLogin()+" The bot could not transition the ticket automatically, please update this Jira ticket manually: "
+                                        + "https://issues.jboss.org/browse/" + issue.getKey());
+                    }
 
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to leave comment: "+e.getMessage());

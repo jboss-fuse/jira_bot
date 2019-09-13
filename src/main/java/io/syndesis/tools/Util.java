@@ -2,7 +2,6 @@ package io.syndesis.tools;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
-import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import sun.misc.BASE64Encoder;
 
