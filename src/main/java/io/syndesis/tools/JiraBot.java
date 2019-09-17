@@ -2,7 +2,7 @@ package io.syndesis.tools;
 
 
 import com.sun.net.httpserver.HttpServer;
-import io.syndesis.tools.job.SprintCleanup;
+import io.syndesis.tools.job.SprintStatusToCurrentSprint;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -62,7 +62,7 @@ public class JiraBot {
 
     private static void scheduleSprintCleanup(Scheduler scheduler) throws Exception {
         // define the job and tie it to our HelloJob class
-        JobDetail job = newJob(SprintCleanup.class)
+        JobDetail job = newJob(SprintStatusToCurrentSprint.class)
                 .withIdentity("Sprint Cleanup", "jira")
                 .build();
 

@@ -18,16 +18,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class SprintCleanup implements Job {
+public class SprintStatusToCurrentSprint implements Job {
 
-    static Logger LOG = LoggerFactory.getLogger(SprintCleanup.class);
+    static Logger LOG = LoggerFactory.getLogger(SprintStatusToCurrentSprint.class);
     public static final MediaType APPLICATION_JSON
             = MediaType.parse("application/json");
     @Override
     public void execute(JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
 
-        String JQL = "status = \"Sprint Backlog\" AND Sprint is EMPTY";
+        String JQL = "project = ENTESB AND status in (\"Sprint Backlog\",\"Validation Failed\", \"In Review\", \"In Development\") and (sprint is EMPTY OR sprint not in openSprints())";
         JiraRestClient jiraClient = Util.createJiraClient();
 
         // Development Service board: 4934
@@ -91,7 +91,12 @@ public class SprintCleanup implements Job {
                                     )
                             .build();
                     response = okHttpClient.newCall(updateSprint).execute();
-                    LOG.info("Response {}", response.code());
+                    if(response.code() >= 200 && response.code() < 300) {
+                        LOG.info("Added {} to current sprint: {} ", issue.getKey(), activeSprintId);
+                    } else {
+                        LOG.error("Failed ot modify sprint contents: HTTP {}", response.code());
+                    }
+
                 }
 
             } else {
