@@ -71,7 +71,7 @@ public class JiraBot {
                 .withIdentity("everyHour", "jira")
                 .startNow()
                 .withSchedule(simpleSchedule()
-                        .withIntervalInHours(1)
+                        .withIntervalInMinutes(15)
                         .repeatForever())
                 .build();
 
