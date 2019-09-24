@@ -2,6 +2,7 @@ package io.syndesis.tools;
 
 
 import com.sun.net.httpserver.HttpServer;
+import io.syndesis.tools.job.PrepareReleaseReportData;
 import io.syndesis.tools.job.SprintStatusToCurrentSprint;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -11,6 +12,7 @@ import org.quartz.impl.StdSchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 
 import static org.quartz.JobBuilder.newJob;
@@ -26,6 +28,8 @@ public class JiraBot {
 
     static Logger LOG = LoggerFactory.getLogger(JiraBot.class);
 
+    public static File tempDirectory = Util.createTempDirectory();
+
     public static void main(String[] args) throws Exception {
 
         final String user = System.getenv("JIRA_USER");
@@ -36,8 +40,12 @@ public class JiraBot {
             System.exit(-1);
         }
 
+
+        LOG.info("Using data dir: {}", tempDirectory.getAbsolutePath());
+
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/", new WebHookHandler());
+        server.createContext(DirectoryHandler.WEBCONTEXT, new DirectoryHandler(tempDirectory.getAbsolutePath()));
         server.setExecutor(null); // creates a default executor
         server.start();
 
@@ -49,6 +57,7 @@ public class JiraBot {
 
         // schedule jobs
         scheduleSprintCleanup(scheduler);
+        scheduleReleaseCriteria(scheduler);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -68,7 +77,7 @@ public class JiraBot {
 
         // Trigger the job to run now, and then repeat every 40 seconds
         Trigger trigger = newTrigger()
-                .withIdentity("everyHour", "jira")
+                .withIdentity("15min", "jira")
                 .startNow()
                 .withSchedule(simpleSchedule()
                         .withIntervalInMinutes(15)
@@ -79,5 +88,23 @@ public class JiraBot {
         scheduler.scheduleJob(job, trigger);
     }
 
+    private static void scheduleReleaseCriteria(Scheduler scheduler) throws Exception {
+        // define the job and tie it to our HelloJob class
+        JobDetail job = newJob(PrepareReleaseReportData.class)
+                .withIdentity("Release Criteria Report", "jira")
+                .build();
+
+        // Trigger the job to run now, and then repeat every 40 seconds
+        Trigger trigger = newTrigger()
+                .withIdentity("daily", "jira")
+                .startNow()
+                .withSchedule(simpleSchedule()
+                        .withIntervalInHours(24)
+                        .repeatForever())
+                .build();
+
+        // Tell quartz to schedule the job using our trigger
+        scheduler.scheduleJob(job, trigger);
+    }
 
 }

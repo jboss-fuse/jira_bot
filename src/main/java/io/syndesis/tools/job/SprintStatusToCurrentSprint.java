@@ -14,7 +14,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -106,8 +105,7 @@ public class SprintStatusToCurrentSprint implements Job {
 
 
         } catch (Exception e) {
-            LOG.error("HTTP invocation failed: {}", e.getMessage());
-            e.printStackTrace();
+            throw new JobExecutionException(e.getMessage());
         } finally {
             try {
                 jiraClient.close();
