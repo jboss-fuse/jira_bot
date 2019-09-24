@@ -28,6 +28,8 @@ public class PrepareReleaseReportData implements Job {
 
     static Logger LOG = LoggerFactory.getLogger(PrepareReleaseReportData.class);
     static String DEFAULT_WEEL_JQL = " DURING (startOfWeek(), endOfWeek())";
+    static String RELEASE_START_DATE = System.getenv("RELEASE_START_DATE");
+    static String RELEASE_VERSION = System.getenv("RELEASE_VERSION");
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext)
@@ -38,7 +40,7 @@ public class PrepareReleaseReportData implements Job {
         try {
 
             // build calendar
-            List<Week> weeks = Util.buildCalendar("2019-07-29");
+            List<Week> weeks = Util.buildCalendar(RELEASE_START_DATE);
 
             StringBuilder sb;
             for(ReleaseCriteria criteria : ReleaseCriteria.values()) {
@@ -57,7 +59,7 @@ public class PrepareReleaseReportData implements Job {
 
                     String query = criteria.query
                             + " DURING (\"" + week.start() + "\", \"" + week.end() + "\")"
-                            + " AND \"Target Release\" = \"fuse-7.5-GA\"";
+                            + " AND \"Target Release\" = \""+RELEASE_VERSION+"\"";
 
                     LOG.info("{}", query);
                     SearchResult results = jiraClient.getSearchClient().searchJql(query).claim();
