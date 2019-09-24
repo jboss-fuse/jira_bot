@@ -16,4 +16,4 @@ USER appuser
 COPY --from=build /app/target/jira-bot-jar-with-dependencies.jar /app
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c"]
-CMD ["java -jar jira-bot-jar-with-dependencies.jar"]
+CMD ["java -jar jira-bot-jar-with-dependencies.jar -Djava.awt.headless=true"]
