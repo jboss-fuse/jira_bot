@@ -96,6 +96,7 @@ public class PrepareReleaseReportData implements Job {
             LOG.info("Done generating release criteria report");
 
         } catch(Exception e)  {
+            e.printStackTrace();
             throw new JobExecutionException(e.getMessage());
         }  finally {
             try {
