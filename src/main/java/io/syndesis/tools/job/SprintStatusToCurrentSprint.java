@@ -27,7 +27,7 @@ public class SprintStatusToCurrentSprint implements Job {
     public void execute(JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
 
-        String JQL = "project = ENTESB AND status in (\"Sprint Backlog\",\"Validation Failed\", \"In Review\", \"In Development\") and (sprint not in openSprints())";
+        String JQL = "project = ENTESB AND status in (\"Sprint Backlog\",\"Validation Failed\", \"In Review\", \"In Development\") and (sprint is EMPTY OR sprint not in openSprints())";
         JiraRestClient jiraClient = Util.createJiraClient();
 
         // Development Service board: 4934

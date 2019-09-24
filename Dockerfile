@@ -15,7 +15,7 @@ WORKDIR /app
 RUN apk --update add \
         fontconfig \
         ttf-dejavu
-        
+
 RUN addgroup -S appuser && adduser -S -G appuser appuser
 USER appuser
 
