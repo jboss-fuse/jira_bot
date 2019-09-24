@@ -1,14 +1,9 @@
-FROM alpine/git as clone
+FROM openjdk:8-jre-slim as clone
 WORKDIR /app
 
 RUN apk --update add \
         fontconfig \
         ttf-dejavu
-
-RUN ln -s /usr/lib/libfontconfig.so.1 /usr/lib/libfontconfig.so && \
-    ln -s /lib/libuuid.so.1 /usr/lib/libuuid.so.1 && \
-    ln -s /lib/libc.musl-x86_64.so.1 /usr/lib/libc.musl-x86_64.so.1
-ENV LD_LIBRARY_PATH /usr/lib
 
 RUN rm -rf /app/jira_bot
 RUN git clone https://github.com/heiko-braun/jira_bot.git
