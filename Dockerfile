@@ -1,9 +1,5 @@
-FROM openjdk:8-jre-slim as clone
+FROM alpine/git as clone
 WORKDIR /app
-
-RUN apk --update add \
-        fontconfig \
-        ttf-dejavu
 
 RUN rm -rf /app/jira_bot
 RUN git clone https://github.com/heiko-braun/jira_bot.git
@@ -15,6 +11,11 @@ RUN mvn clean install
 
 FROM openjdk:8-jre-alpine as main
 WORKDIR /app
+
+RUN apk --update add \
+        fontconfig \
+        ttf-dejavu
+        
 RUN addgroup -S appuser && adduser -S -G appuser appuser
 USER appuser
 
