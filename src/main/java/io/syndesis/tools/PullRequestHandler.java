@@ -22,6 +22,7 @@ public class PullRequestHandler implements EventHandler {
         put(EventType.PULL_REQUEST_CLOSED, new PullRequestClosed());
         put(EventType.PULL_REQUEST_EDITED, new PullRequestOpened());
     }};
+    public static final String BACKPORTING_BOT = "backporting[bot]";
 
     static Logger LOG = LoggerFactory.getLogger(WebHookHandler.class);
 
@@ -37,6 +38,15 @@ public class PullRequestHandler implements EventHandler {
         Object document = Configuration.defaultConfiguration()
                 .jsonProvider()
                 .parse(request.getPayload());
+
+        String sender = JsonPath.read(document, "$.sender.login");
+
+        if(BACKPORTING_BOT.equals(sender)) {
+            LOG.info("Ignore pull request from {}", BACKPORTING_BOT );
+            response.setStatus(200);
+            response.setMessage("Ignore bot messages activities");
+            return;
+        }
 
         String action = JsonPath.read(document, "$.action");
         EventType eventType = EventType.UNKNOWN;
