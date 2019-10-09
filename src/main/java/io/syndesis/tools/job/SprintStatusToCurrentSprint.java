@@ -82,6 +82,9 @@ public class SprintStatusToCurrentSprint implements Job {
 
                 for(Issue issue : result.getIssues()) {
                     LOG.info("Found issue in inconsistent state: {} ", issue.getKey());
+
+                    // see https://docs.atlassian.com/jira-software/REST/7.0.4/#agile/1.0/sprint-moveIssuesToSprint
+
                     Request updateSprint = new Request.Builder()
                             .url("https://issues.jboss.org/rest/agile/1.0/sprint/"+activeSprintId+"/issue")
                             .method("POST",
