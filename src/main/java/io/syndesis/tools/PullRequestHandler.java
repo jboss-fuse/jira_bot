@@ -23,10 +23,6 @@ public class PullRequestHandler implements EventHandler {
         put(EventType.PULL_REQUEST_EDITED, new PullRequestOpened());
     }};
 
-    public static final String BACKPORTING_BOT = "backporting[bot]";
-    public static final String DEPENDABOT_BOT = "dependabot-preview[bot]";
-    public static final String UNKNOWN_BOT = "[bot]";
-
     static Logger LOG = LoggerFactory.getLogger(WebHookHandler.class);
 
     private final GitHub github;
@@ -43,9 +39,9 @@ public class PullRequestHandler implements EventHandler {
                 .parse(request.getPayload());
 
         String sender = JsonPath.read(document, "$.sender.login");
+        String senderType = JsonPath.read(document, "$.sender.type");
 
-        if( (BACKPORTING_BOT.equals(sender) || DEPENDABOT_BOT.equals(sender)) ||
-                sender.indexOf(UNKNOWN_BOT)!=-1) {
+        if("Bot".equals(senderType)) {
             LOG.info("Ignore pull request from {}", sender );
             response.setStatus(200);
             response.setMessage("Ignore bot messages activities");
