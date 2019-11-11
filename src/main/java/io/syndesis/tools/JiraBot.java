@@ -56,7 +56,7 @@ public class JiraBot {
         scheduler.start();
 
         // schedule jobs
-        scheduleSprintCleanup(scheduler);
+        //scheduleSprintCleanup(scheduler);
         scheduleReleaseCriteria(scheduler);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
