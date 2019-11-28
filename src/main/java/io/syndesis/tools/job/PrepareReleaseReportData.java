@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 
 public class PrepareReleaseReportData implements Job {
@@ -35,9 +34,7 @@ public class PrepareReleaseReportData implements Job {
     public void execute(JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
 
-        JiraRestClient jiraClient = Util.createJiraClient();
-
-        try {
+        try (JiraRestClient jiraClient = Util.createJiraClient()) {
 
             // build calendar
             List<Week> weeks = Util.buildCalendar(RELEASE_START_DATE);
@@ -98,12 +95,6 @@ public class PrepareReleaseReportData implements Job {
         } catch(Exception e)  {
             e.printStackTrace();
             throw new JobExecutionException(e.getMessage());
-        }  finally {
-            try {
-                jiraClient.close();
-            } catch (IOException e) {
-                LOG.error(e.getMessage());
-            }
         }
     }
 
