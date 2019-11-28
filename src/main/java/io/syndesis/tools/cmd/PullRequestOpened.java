@@ -5,25 +5,20 @@ import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.Transition;
+import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import com.jayway.jsonpath.JsonPath;
 import io.syndesis.tools.EventType;
 import io.syndesis.tools.IssueKey;
-import io.syndesis.tools.Util;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
-import org.json.JSONObject;
 import org.kohsuke.github.GHIssueComment;
 import org.kohsuke.github.GHPullRequest;
 import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 public class PullRequestOpened implements Command {
@@ -131,7 +126,7 @@ public class PullRequestOpened implements Command {
             IssueField pullRequestField = issue.getFieldByName("Git Pull Request");
 
             // append PR info
-            StringBuilder sb = new StringBuilder();
+            StringBuilder pullRequests = new StringBuilder();
 
             if (pullRequestField.getValue() != null) {
                 JSONArray jsonArray = (JSONArray) pullRequestField.getValue();
@@ -142,45 +137,22 @@ public class PullRequestOpened implements Command {
                     try {
                         for (int idx = 0; idx < jsonArray.length(); idx++) {
                             if (idx > 0)
-                                sb.append(",");
-                            sb.append(jsonArray.get(idx).toString());
+                                pullRequests.append(",");
+                            pullRequests.append(jsonArray.get(idx).toString());
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException(e.getMessage());
                     }
                 } else {
-                    sb.append(pullRequestHref.toString());
+                    pullRequests.append(pullRequestHref.toString());
                 }
             } else {
-                sb.append(pullRequestHref.toString());
+                pullRequests.append(pullRequestHref.toString());
             }
 
-            JSONObject fieldJson = new JSONObject();
-            fieldJson.put(pullRequestField.getId(), sb.toString());
-            JSONObject updateJson = new JSONObject();
-            updateJson.put("fields", fieldJson);
-
-            try {
-                URL updateUrl = new URL("https://issues.jboss.org/rest/api/2/issue/"+issue.getKey());
-                HttpURLConnection httpCon = Util.createAuthenticatedUrlConnection(
-                        updateUrl,
-                        "PUT"
-                );
-
-                httpCon.setDoOutput(true);
-                OutputStreamWriter out = new OutputStreamWriter(httpCon.getOutputStream());
-                out.write(updateJson.toString());
-                out.flush();
-                out.close();
-                int responseCode = httpCon.getResponseCode();
-                logger.debug("HTTP response: {} ", responseCode);
-
-                InputStream in = httpCon.getInputStream();
-                in.close();
-
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to update "+issue.getKey()+": "+ e.getMessage());
-            }
+            IssueInputBuilder issueBuilder = new IssueInputBuilder();
+            issueBuilder.setFieldValue(pullRequestField.getId(), pullRequests.toString());
+            issueClient.updateIssue(issue.getKey(), issueBuilder.build());
         }
 
     }
