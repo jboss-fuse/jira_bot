@@ -4,7 +4,6 @@ import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import okhttp3.*;
 import org.kohsuke.github.GitHub;
-import sun.misc.BASE64Encoder;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +24,8 @@ public class Util {
 
     public static HttpURLConnection createAuthenticatedUrlConnection(URL url, String requestMethod)
             throws IOException {
-        BASE64Encoder enc = new BASE64Encoder();
         String userpassword = USER + ":" + PASS;
-        String encodedAuthorization = enc.encode( userpassword.getBytes() );
+        String encodedAuthorization = Base64.getEncoder().encodeToString(userpassword.getBytes());
 
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod(requestMethod);
