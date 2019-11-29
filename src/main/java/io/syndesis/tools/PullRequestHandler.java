@@ -10,7 +10,6 @@ import org.kohsuke.github.GitHub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -58,8 +57,7 @@ public class PullRequestHandler implements EventHandler {
 
         String repo = JsonPath.read(document, "$.repository.full_name");
 
-        JiraRestClient jira = Util.createJiraClient();
-        try {
+        try (JiraRestClient jira = Util.createJiraClient()) {
             LOG.info("Received EventType: {} from repo {}", eventType, repo);
             Command command = commands.getOrDefault(eventType, new Command() {
                 @Override
@@ -76,12 +74,6 @@ public class PullRequestHandler implements EventHandler {
             response.setStatus(500);
             response.setMessage("Failed to process "+ eventType);
             LOG.error("Failed to process {}: {}", eventType, e.getMessage());
-        } finally {
-            try {
-                jira.close();
-            } catch (IOException e) {
-                LOG.error(e.getMessage());
-            }
         }
     }
 }
