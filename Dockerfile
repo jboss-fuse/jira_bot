@@ -2,7 +2,7 @@ FROM alpine/git as clone
 WORKDIR /app
 
 RUN rm -rf /app/jira_bot
-RUN git clone https://github.com/heiko-braun/jira_bot.git
+RUN git clone https://github.com/jboss-fuse/jira_bot.git
 
 FROM maven:3.5-jdk-8-alpine as build
 WORKDIR /app
