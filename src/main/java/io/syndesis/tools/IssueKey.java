@@ -3,6 +3,7 @@ package io.syndesis.tools;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,6 +149,11 @@ public class IssueKey {
         }
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(issueId, projectKey);
     }
 
     public class InvalidIssueKeyException extends Exception {
