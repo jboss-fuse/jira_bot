@@ -8,8 +8,6 @@ import io.syndesis.tools.Week;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.quartz.Job;
@@ -21,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 
 public class PrepareReleaseReportData implements Job {
@@ -35,9 +32,7 @@ public class PrepareReleaseReportData implements Job {
     public void execute(JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
 
-        JiraRestClient jiraClient = Util.createJiraClient();
-
-        try {
+        try (JiraRestClient jiraClient = Util.createJiraClient()) {
 
             // build calendar
             List<Week> weeks = Util.buildCalendar(RELEASE_START_DATE);
@@ -98,12 +93,6 @@ public class PrepareReleaseReportData implements Job {
         } catch(Exception e)  {
             e.printStackTrace();
             throw new JobExecutionException(e.getMessage());
-        }  finally {
-            try {
-                jiraClient.close();
-            } catch (IOException e) {
-                LOG.error(e.getMessage());
-            }
         }
     }
 

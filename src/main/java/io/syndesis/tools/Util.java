@@ -50,6 +50,7 @@ public class Util {
 
     public static OkHttpClient createAuthenticatedClient() {
         OkHttpClient httpClient = new OkHttpClient.Builder().authenticator(new Authenticator() {
+            @Override
             public Request authenticate(Route route, Response response) throws IOException {
                 String credential = Credentials.basic(USER, PASS);
                 return response.request().newBuilder().header("Authorization", credential).build();
