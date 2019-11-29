@@ -6,15 +6,11 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 import org.kohsuke.github.GitHub;
 
