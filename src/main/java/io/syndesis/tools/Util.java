@@ -1,10 +1,5 @@
 package io.syndesis.tools;
 
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
-import okhttp3.*;
-import org.kohsuke.github.GitHub;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -12,7 +7,25 @@ import java.net.URI;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+
+import org.kohsuke.github.GitHub;
+
+import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+
+import okhttp3.Authenticator;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.Route;
 
 public class Util {
 
