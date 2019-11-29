@@ -5,11 +5,16 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.time.LocalDate;
-import java.time.temporal.WeekFields;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import org.kohsuke.github.GitHub;
 
@@ -43,6 +48,7 @@ public class Util {
 
     public static OkHttpClient createAuthenticatedClient() {
         OkHttpClient httpClient = new OkHttpClient.Builder().authenticator(new Authenticator() {
+            @Override
             public Request authenticate(Route route, Response response) throws IOException {
                 String credential = Credentials.basic(USER, PASS);
                 return response.request().newBuilder().header("Authorization", credential).build();

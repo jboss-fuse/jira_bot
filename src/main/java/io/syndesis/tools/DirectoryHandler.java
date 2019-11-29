@@ -24,11 +24,9 @@ public class DirectoryHandler implements HttpHandler
         currentDir = path;
     }
 
+    @Override
     public void handle(HttpExchange request) throws IOException
     {
-        InputStream is = request.getRequestBody();
-        BufferedReader buff = new BufferedReader(new InputStreamReader(is));
-
         Headers headers = request.getRequestHeaders();
         URI uri = request.getRequestURI();
         String path = uri.getPath().substring(WEBCONTEXT.length());
@@ -39,9 +37,9 @@ public class DirectoryHandler implements HttpHandler
             String response = "Not Found!";
             request.sendResponseHeaders(404, response.length());
 
-            OutputStream os = request.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
+            try (OutputStream os = request.getResponseBody()) {
+                os.write(response.getBytes());
+            }
 
             return;
         }
@@ -49,17 +47,18 @@ public class DirectoryHandler implements HttpHandler
         if (requestedFile.isFile()) {
             byte[] bytearray  = new byte [(int)requestedFile.length()];
             FileInputStream fis = new FileInputStream(requestedFile);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            bis.read(bytearray, 0, bytearray.length);
+            try (BufferedInputStream bis = new BufferedInputStream(fis)) {
+                bis.read(bytearray, 0, bytearray.length);
+            }
 
             Headers responseHeader = request.getResponseHeaders();
             responseHeader.add("Content-Type",
                     new MimetypesFileTypeMap().getContentType(requestedFile));
             request.sendResponseHeaders(200, requestedFile.length());
 
-            OutputStream os = request.getResponseBody();
-            os.write(bytearray, 0, bytearray.length);
-            os.close();
+            try (OutputStream os = request.getResponseBody()) {
+                os.write(bytearray, 0, bytearray.length);
+            }
         }
 
         else if (requestedFile.isDirectory()) {
@@ -89,9 +88,9 @@ public class DirectoryHandler implements HttpHandler
 
             request.sendResponseHeaders(200, response.length());
 
-            OutputStream os = request.getResponseBody();
-            os.write(response.toString().getBytes());
-            os.close();
+            try (OutputStream os = request.getResponseBody()) {
+                os.write(response.toString().getBytes());
+            }
         }
     }
 }

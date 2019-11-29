@@ -74,8 +74,8 @@ public class WebHookHandler implements HttpHandler {
 
         // response
         exchange.sendResponseHeaders(response.getStatus(), response.getMessage().length());
-        OutputStream os = exchange.getResponseBody();
-        os.write(response.getMessage().getBytes());
-        os.close();
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(response.getMessage().getBytes());
+        }
     }
 }
