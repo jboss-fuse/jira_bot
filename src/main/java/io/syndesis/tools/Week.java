@@ -1,34 +1,40 @@
 package io.syndesis.tools;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class Week {
-    Date start;
-    Date end;
+    LocalDate start;
+    LocalDate end;
 
-    public Week(Date start, Date end) {
+    public Week(LocalDate start, LocalDate end) {
         this.start = start;
         this.end = end;
     }
 
     public String start() {
-        return Util.DF.format(start);
+        return start.toString();
     }
 
     public String end() {
-        return Util.DF.format(end);
+        return end.toString();
     }
 
-    public Date startDate() {
+    public LocalDate startDate() {
         return start;
     }
 
-    public Date endDate() {
+    public LocalDate endDate() {
         return end;
     }
 
     @Override
     public String toString() {
-        return start()+" ... "+end();
+        return start() + " ... " + end();
+    }
+
+    public Date endDateVintage() {
+        return Date.from(end.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

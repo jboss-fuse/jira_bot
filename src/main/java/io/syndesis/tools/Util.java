@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -31,9 +32,6 @@ public class Util {
 
     final static String USER = System.getenv("JIRA_USER");
     final static String PASS = System.getenv("JIRA_PASS");
-
-    public final static Locale LOCALE = Locale.UK;
-    public final static DateFormat DF = new SimpleDateFormat("yyyy-MM-dd", LOCALE);
 
     public static HttpURLConnection createAuthenticatedUrlConnection(URL url, String requestMethod)
             throws IOException {
@@ -102,30 +100,17 @@ public class Util {
     }
 
     public static List<Week> buildCalendar(String startDate) throws Exception {
+        final LocalDate releaseStart = LocalDate.parse(startDate); // Mon Jul 29 00:00:00 CEST 2019
+
+        final LocalDate nextMonday = LocalDate.now().plusDays(7).with(WeekFields.ISO.dayOfWeek(), 1); // Mon Dec 02 01:15:10 CET 2019
+
+        LocalDate weekEnd = nextMonday;
 
         LinkedList<Week> weeks = new LinkedList<>();
-
-        Calendar releaseStart = new GregorianCalendar(LOCALE);
-        releaseStart.setTime(DF.parse(startDate));
-
-        Calendar cal = new GregorianCalendar(LOCALE);
-
-        cal.setTime(new Date());
-        cal.setFirstDayOfWeek(Calendar.MONDAY);
-        cal.add(Calendar.WEEK_OF_MONTH, 1);
-
-        cal.set(Calendar.DAY_OF_WEEK, cal.getFirstDayOfWeek());
-
-        for (int i = 0; i < 15; i++) {
-
-            if(cal.before(releaseStart))
-                break;
-
-            cal.add(Calendar.WEEK_OF_MONTH, -1);
-
-            Calendar tmp = (Calendar) cal.clone();
-            tmp.add(Calendar.DAY_OF_WEEK, 7);
-            weeks.add(0, new Week(cal.getTime(), tmp.getTime()));
+        for (int i = 0; i < 15 && weekEnd.isAfter(releaseStart); i++) {
+            LocalDate weekStart = weekEnd.minusDays(7);
+            weeks.add(0, new Week(weekStart, weekEnd));
+            weekEnd = weekStart;
         }
 
         return weeks;

@@ -64,7 +64,7 @@ public class PrepareReleaseReportData implements Job {
                     sb.append(week.end()).append(";");
                     sb.append(results.getTotal()).append("\n");
 
-                    series.add( new org.jfree.data.time.Week(week.endDate()), results.getTotal());
+                    series.add( new org.jfree.data.time.Week(week.endDateVintage()), results.getTotal());
                 }
 
                 File file = new File(JiraBot.tempDirectory, criteria.filename+".txt");
