@@ -18,9 +18,6 @@ public class DirectoryHandler implements HttpHandler
 
     public void handle(HttpExchange request) throws IOException
     {
-        InputStream is = request.getRequestBody();
-        BufferedReader buff = new BufferedReader(new InputStreamReader(is));
-
         Headers headers = request.getRequestHeaders();
         URI uri = request.getRequestURI();
         String path = uri.getPath().substring(WEBCONTEXT.length());
@@ -41,8 +38,9 @@ public class DirectoryHandler implements HttpHandler
         if (requestedFile.isFile()) {
             byte[] bytearray  = new byte [(int)requestedFile.length()];
             FileInputStream fis = new FileInputStream(requestedFile);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            bis.read(bytearray, 0, bytearray.length);
+            try (BufferedInputStream bis = new BufferedInputStream(fis)) {
+                bis.read(bytearray, 0, bytearray.length);
+            }
 
             Headers responseHeader = request.getResponseHeaders();
             responseHeader.add("Content-Type",

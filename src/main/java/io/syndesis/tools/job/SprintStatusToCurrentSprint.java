@@ -23,12 +23,13 @@ public class SprintStatusToCurrentSprint implements Job {
     static Logger LOG = LoggerFactory.getLogger(SprintStatusToCurrentSprint.class);
     public static final MediaType APPLICATION_JSON
             = MediaType.parse("application/json");
+
+    private static final String JQL = "project = ENTESB AND status in (\"Sprint Backlog\",\"Validation Failed\", \"In Review\", \"In Development\") and (sprint is EMPTY OR sprint not in openSprints())";
+
     @Override
     public void execute(JobExecutionContext jobExecutionContext)
             throws JobExecutionException {
 
-        String JQL = "project = ENTESB AND status in (\"Sprint Backlog\",\"Validation Failed\", \"In Review\", \"In Development\") and (sprint is EMPTY OR sprint not in openSprints())";
-        JiraRestClient jiraClient = Util.createJiraClient();
 
         // Development Service board: 4934
         // https://issues.jboss.org/rest/agile/1.0/board?projectKeyOrId=ENTESB
@@ -36,17 +37,15 @@ public class SprintStatusToCurrentSprint implements Job {
 
         OkHttpClient okHttpClient = Util.createAuthenticatedClient();
 
-        try {
-            Request request = new Request.Builder()
-                    .url("https://issues.jboss.org/rest/agile/1.0/board/4934/sprint")
-                    .get()
-                    .build();
-            Response response = okHttpClient.newCall(request).execute();
-            System.out.println();
+        Request request = new Request.Builder()
+            .url("https://issues.jboss.org/rest/agile/1.0/board/4934/sprint")
+            .get()
+            .build();
 
+        try (Response fetchResponse = okHttpClient.newCall(request).execute()) {
             Object document = Configuration.defaultConfiguration()
                     .jsonProvider()
-                    .parse(response.body().string());
+                    .parse(fetchResponse.body().string());
             List<Object> sprints = JsonPath.read(document, "$..values[?(@.startDate)]");
 
             Calendar cur = Calendar.getInstance();
@@ -72,11 +71,14 @@ public class SprintStatusToCurrentSprint implements Job {
                 }
             }
 
-            if(activeSprintId!=null) {
+            if (activeSprintId!=null) {
 
-                SearchResult result = jiraClient.getSearchClient().searchJql(JQL).claim();
+                final SearchResult result;
+                try (JiraRestClient jiraClient = Util.createJiraClient()) {
+                    result = jiraClient.getSearchClient().searchJql(JQL).claim();
+                }
 
-                if(result.getTotal()==0) {
+                if (result.getTotal()==0) {
                     LOG.info("No inconsistencies found ...");
                 }
 
@@ -93,13 +95,13 @@ public class SprintStatusToCurrentSprint implements Job {
                                 "{\"issues\": [\""+issue.getKey()   +"\"]}")
                                     )
                             .build();
-                    response = okHttpClient.newCall(updateSprint).execute();
-                    if(response.code() >= 200 && response.code() < 300) {
-                        LOG.info("Added {} to current sprint: {} ", issue.getKey(), activeSprintId);
-                    } else {
-                        LOG.error("Failed ot modify sprint contents: HTTP {}", response.code());
+                    try (Response updateResponse = okHttpClient.newCall(updateSprint).execute()) {
+                        if(updateResponse.code() >= 200 && updateResponse.code() < 300) {
+                            LOG.info("Added {} to current sprint: {} ", issue.getKey(), activeSprintId);
+                        } else {
+                            LOG.error("Failed ot modify sprint contents: HTTP {}", updateResponse.code());
+                        }
                     }
-
                 }
 
             } else {
@@ -109,13 +111,6 @@ public class SprintStatusToCurrentSprint implements Job {
 
         } catch (Exception e) {
             throw new JobExecutionException(e.getMessage());
-        } finally {
-            try {
-                jiraClient.close();
-                
-            } catch (Exception e) {
-                LOG.error("Cleanup failed: {}", e.getMessage());
-            }
         }
     }
 }
