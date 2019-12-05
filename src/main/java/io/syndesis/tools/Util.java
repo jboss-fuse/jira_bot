@@ -79,7 +79,7 @@ public class Util {
         // clients
         JiraRestClient jira = new AsynchronousJiraRestClientFactory()
                 .createWithBasicHttpAuthentication(
-                        URI.create("http://issues.jboss.org"),
+                        URI.create("http://issues.redhat.com"),
                         USER, PASS
                 );
 

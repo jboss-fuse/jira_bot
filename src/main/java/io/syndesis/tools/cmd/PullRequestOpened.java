@@ -118,7 +118,7 @@ public class PullRequestOpened implements Command {
                     if(!remarkExists) {
                         pullRequest
                                 .comment("@"+pullRequest.getUser().getLogin()+" The bot could not transition the ticket automatically, please update this Jira ticket manually: "
-                                        + "https://issues.jboss.org/browse/" + issue.getKey());
+                                        + "https://issues.redhat.com/browse/" + issue.getKey());
                     }
 
                 } catch (IOException e) {
@@ -161,7 +161,7 @@ public class PullRequestOpened implements Command {
             updateJson.put("fields", fieldJson);
 
             try {
-                URL updateUrl = new URL("https://issues.jboss.org/rest/api/2/issue/"+issue.getKey());
+                URL updateUrl = new URL("https://issues.redhat.com/rest/api/2/issue/"+issue.getKey());
                 HttpURLConnection httpCon = Util.createAuthenticatedUrlConnection(
                         updateUrl,
                         "PUT"

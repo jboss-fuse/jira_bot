@@ -39,13 +39,13 @@ public class SprintStatusToCurrentSprint implements Job {
 
 
         // Development Service board: 4934
-        // https://issues.jboss.org/rest/agile/1.0/board?projectKeyOrId=ENTESB
-        // https://issues.jboss.org/rest/agile/1.0/board/4934/sprint
+        // https://issues.redhat.com/rest/agile/1.0/board?projectKeyOrId=ENTESB
+        // https://issues.redhat.com/rest/agile/1.0/board/4934/sprint
 
         OkHttpClient okHttpClient = Util.createAuthenticatedClient();
 
         Request request = new Request.Builder()
-            .url("https://issues.jboss.org/rest/agile/1.0/board/4934/sprint")
+            .url("https://issues.redhat.com/rest/agile/1.0/board/4934/sprint")
             .get()
             .build();
 
@@ -95,7 +95,7 @@ public class SprintStatusToCurrentSprint implements Job {
                     // see https://docs.atlassian.com/jira-software/REST/7.0.4/#agile/1.0/sprint-moveIssuesToSprint
 
                     Request updateSprint = new Request.Builder()
-                            .url("https://issues.jboss.org/rest/agile/1.0/sprint/"+activeSprintId+"/issue")
+                            .url("https://issues.redhat.com/rest/agile/1.0/sprint/"+activeSprintId+"/issue")
                             .method("POST",
                                     RequestBody.create(
                                         APPLICATION_JSON,
