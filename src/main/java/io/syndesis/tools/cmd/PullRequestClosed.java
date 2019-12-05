@@ -88,7 +88,7 @@ public class PullRequestClosed implements Command {
                     GHPullRequest pullRequest = github.getRepository(repo).getPullRequest(pullRequestId);
                     pullRequest
                             .comment("@"+pullRequest.getUser().getLogin()+" The bot could not transition the ticket automatically, please update this Jira ticket manually: "
-                                    + "https://issues.jboss.org/browse/" + issue.getKey());
+                                    + "https://issues.redhat.com/browse/" + issue.getKey());
 
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to leave comment: "+e.getMessage());
